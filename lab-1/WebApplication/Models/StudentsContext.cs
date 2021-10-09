@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication.Models
 {
-    public class TodoContext : DbContext
+    public class StudentsContext : DbContext
     {
-        public TodoContext(DbContextOptions<TodoContext> options) : base(options)
+        public StudentsContext(DbContextOptions<StudentsContext> options) : base(options)
         {
         }
 
