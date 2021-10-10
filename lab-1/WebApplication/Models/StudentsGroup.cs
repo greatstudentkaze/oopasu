@@ -11,5 +11,6 @@ namespace WebApplication.Models
         public string Department { get; set; }
         public string GraduatingDepartment { get; set; }
         public string GroupLeaderFullName { get; set; }   
+        public bool IsGraduated { get; set; }   
     }
 }
