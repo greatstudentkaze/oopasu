@@ -2,7 +2,7 @@ using System;
 
 namespace WebApplication.Models
 {
-    public class StudentsGroup
+    public class StudentsGroupDTO
     {
         public Guid Id { get; set; }
         public string Number { get; set; }

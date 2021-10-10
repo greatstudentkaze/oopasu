@@ -21,20 +21,22 @@ namespace WebApplication.Controllers
 
         // GET: api/StudentsGroups
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<StudentsGroup>>> GetStudentsGroups()
+        public async Task<ActionResult<IEnumerable<StudentsGroupDTO>>> GetStudentsGroups()
         {
-            return await _context.StudentsGroups.ToListAsync();
+            return await _context.StudentsGroups
+                .Select(it => ItemToDTO(it))
+                .ToListAsync();
         }
 
         // GET: api/StudentsGroups/:id
         [HttpGet("{id}")]
-        public async Task<ActionResult<StudentsGroup>> GetStudentsGroup(Guid id)
+        public async Task<ActionResult<StudentsGroupDTO>> GetStudentsGroup(Guid id)
         {
             var studentsGroup = await _context.StudentsGroups.FindAsync(id);
 
             if (studentsGroup == null) return NotFound();
 
-            return studentsGroup;
+            return ItemToDTO(studentsGroup);
         }
 
         // PUT: api/StudentsGroups/:id
@@ -70,7 +72,7 @@ namespace WebApplication.Controllers
             _context.StudentsGroups.Add(studentsGroup);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetStudentsGroup), new {id = studentsGroup.Id}, studentsGroup);
+            return CreatedAtAction(nameof(GetStudentsGroup), new {id = studentsGroup.Id}, ItemToDTO(studentsGroup));
         }
 
         // DELETE: api/StudentsGroups/:id
@@ -96,6 +98,21 @@ namespace WebApplication.Controllers
             return _context.StudentsGroups
                 .Where(it => it.Number == groupNumber)
                 .Any(it => !it.IsGraduated);
+        }
+
+        private static StudentsGroupDTO ItemToDTO(StudentsGroup item)
+        {
+            return new StudentsGroupDTO()
+            {
+                Id = item.Id,
+                Course = item.Course,
+                Department = item.Department,
+                GraduatingDepartment = item.GraduatingDepartment,
+                GroupLeaderFullName = item.GroupLeaderFullName,
+                IsGraduated = item.IsGraduated,
+                Number = item.Number,
+                StudentsCount = item.StudentsCount,
+            };
         }
     }
 }
