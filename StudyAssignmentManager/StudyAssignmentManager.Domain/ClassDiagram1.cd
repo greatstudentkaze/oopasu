@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="StudyAssignmentManager.Domain.User">
+    <Position X="3" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAIAAAAAAAAAAQgAAAAAAAAAAAAAAAQA=</HashCode>
+      <FileName>User.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Roles" />
+      <Property Name="CheckRequests" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="StudyAssignmentManager.Domain.UserRole">
+    <Position X="0.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACACAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>UserRole.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Users" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="StudyAssignmentManager.Domain.StudyAssignment">
+    <Position X="5.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAECAAAAQAAAACAAAAAACAIAQAEAABAQAAAAAAACAAA=</HashCode>
+      <FileName>StudyAssignment.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Student" />
+      <Property Name="Teacher" />
+      <Property Name="Tutor" />
+      <Property Name="Data" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="CheckRequests" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="StudyAssignmentManager.Domain.CheckRequest">
+    <Position X="5.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAACAAAEBAAgAAAAAAAAAQAAAAAAAAAAAAAEAAAAAAA=</HashCode>
+      <FileName>CheckRequest.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Assignment" />
+      <Property Name="Reviewer" />
+      <Property Name="Status" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="StudyAssignmentManager.Domain.AssignmentData">
+    <Position X="8.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAICAAAAEAAgAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>AssignmentData.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Assignments" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Enum Name="StudyAssignmentManager.Domain.CheckRequestStatus">
+    <Position X="8.25" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAIAgAAAAAAAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>CheckRequest.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
