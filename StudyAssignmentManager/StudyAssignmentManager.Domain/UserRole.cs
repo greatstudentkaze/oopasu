@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace StudyAssignmentManager.Domain
 {
@@ -6,5 +7,7 @@ namespace StudyAssignmentManager.Domain
     {
         public Guid Id { get; set; }
         public String Title { get; set; }
+        
+        public List<User> Users { get; set; }
     }
 }

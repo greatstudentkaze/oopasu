@@ -7,6 +7,9 @@ namespace StudyAssignmentManager.Domain
     {
         public Guid Id { get; set; }
         public String FullName { get; set; }
-        public List<Guid> Roles { get; set; }
+        
+        public List<Guid> RoleIds { get; set; }
+        public List<UserRole> Roles { get; set; }
+        public List<CheckRequest> CheckRequests { get; set; }
     }
 }

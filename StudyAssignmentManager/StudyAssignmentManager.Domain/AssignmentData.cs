@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace StudyAssignmentManager.Domain
 {
@@ -8,5 +9,7 @@ namespace StudyAssignmentManager.Domain
         public String Title { get; set; }
         public String Description { get; set; }
         public String EditorJSData { get; set; }
+        
+        public List<StudyAssignment> Assignments { get; set; }
     }
 }
