@@ -19,5 +19,6 @@ namespace StudyAssignmentManager.Domain
         public Guid TutorId { get; set; }
         public User Tutor { get; set; }
         public List<CheckRequest> CheckRequests { get; set; }
+        public List<Answer> Answers { get; set; }
     }
 }
