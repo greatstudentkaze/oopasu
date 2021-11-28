@@ -20,13 +20,13 @@ namespace StudyAssignmentManager.API.Services
             var user = await _userRepository.GetByEmailAsync(model.Email);
             if (user == null)
             {
-                return null;
+                throw new Exception($"Пользователь с email: {model.Email} не найден");
             }
 
             var isPasswordCorrect = BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash);
             if (!isPasswordCorrect)
             {
-                return null;
+                throw new Exception("Неверный пароль");
             }
 
             return new AuthenticationResponse(user);
@@ -37,7 +37,7 @@ namespace StudyAssignmentManager.API.Services
             var candidate = await _userRepository.GetByEmailAsync(model.Email);
             if (candidate != null)
             {
-                return null;
+                throw new Exception($"Пользователь с email: {model.Email} уже существует");
             }
 
             var user = new User
@@ -49,12 +49,11 @@ namespace StudyAssignmentManager.API.Services
             };
             await _userRepository.AddAsync(user);
 
-            var response = await Login(new AuthenticationRequest
+            return await Login(new AuthenticationRequest
             {
                 Email = model.Email,
                 Password = model.Password,
             });
-            return response;
         }
     }
 }
