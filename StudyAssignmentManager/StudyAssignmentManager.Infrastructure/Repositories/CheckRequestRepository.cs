@@ -7,7 +7,7 @@ using StudyAssignmentManager.Domain;
 
 namespace StudyAssignmentManager.Infrastructure.Repositories
 {
-    public class CheckRequestRepository
+    public class CheckRequestRepository : ICheckRequestRepository
     {
         private readonly Context _context;
         public Context UnitOfWork
@@ -23,11 +23,6 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
         
-        public async Task<List<CheckRequest>> GetAllAsync()
-        {
-            return await _context.CheckRequests.ToListAsync();
-        }
-        
         public async Task<CheckRequest> GetByIdAsync(Guid id)
         {
             return await _context.CheckRequests.FindAsync(id);
@@ -36,6 +31,11 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
         public async Task<List<CheckRequest>> GetByAssignmentIdAsync(Guid assignmentId)
         {
             return await _context.CheckRequests.Where(it => it.AssignmentId == assignmentId).ToListAsync();
+        }
+        
+        public async Task<List<CheckRequest>> GetByReviewerIdAsync(Guid reviewerId)
+        {
+            return await _context.CheckRequests.Where(it => it.ReviewerId == reviewerId).ToListAsync();
         }
         
         public async Task AddAsync(CheckRequest checkRequest)
@@ -51,11 +51,16 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
         
-        public async Task DeleteAsync(Guid id)
+        public async Task UpdateStatusAsync(Guid id, CheckRequestStatus status)
         {
-            var checkRequest = await _context.CheckRequests.FindAsync(id);
-            _context.Remove(checkRequest);
+            var existCheckRequest = await _context.CheckRequests.FindAsync(id);
+            _context.Entry(existCheckRequest).CurrentValues.SetValues(new { Status = status });
             await _context.SaveChangesAsync();
+        }
+
+        public int GetCount()
+        {
+            return _context.CheckRequests.Count();
         }
     }
 }
