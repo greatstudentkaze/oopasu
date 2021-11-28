@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudyAssignmentManager.Domain
 {
@@ -8,7 +9,9 @@ namespace StudyAssignmentManager.Domain
         public Guid Id { get; set; }
         public List<String> Comments { get; set; }
         public List<String> AttachmentUrls { get; set; }
-        public String EditorJSData { get; set; }
+        
+        [Column(TypeName = "jsonb")]
+        public EditorJSData Data { get; set; }
         
         public Guid AssignmentId { get; set; }
         public StudyAssignment Assignment { get; set; }

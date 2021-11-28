@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using StudyAssignmentManager.Domain;
@@ -11,9 +12,10 @@ using StudyAssignmentManager.Infrastructure;
 namespace StudyAssignmentManager.Infrastructure.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20211125083417_Add AuthorId field to AssignmentData")]
+    partial class AddAuthorIdfieldtoAssignmentData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,8 +38,8 @@ namespace StudyAssignmentManager.Infrastructure.Migrations
                     b.Property<List<string>>("Comments")
                         .HasColumnType("text[]");
 
-                    b.Property<EditorJSData>("Data")
-                        .HasColumnType("jsonb");
+                    b.Property<string>("EditorJSData")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -119,8 +121,7 @@ namespace StudyAssignmentManager.Infrastructure.Migrations
                     b.Property<Guid>("DataId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("DueDate")
-                        .IsRequired()
+                    b.Property<DateTime>("DueDate")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsCompleted")

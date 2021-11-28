@@ -3,17 +3,18 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using StudyAssignmentManager.Domain;
 using StudyAssignmentManager.Infrastructure;
 
 namespace StudyAssignmentManager.Infrastructure.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20211125063946_Update type of Data field")]
+    partial class UpdatetypeofDatafield
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,8 +37,8 @@ namespace StudyAssignmentManager.Infrastructure.Migrations
                     b.Property<List<string>>("Comments")
                         .HasColumnType("text[]");
 
-                    b.Property<EditorJSData>("Data")
-                        .HasColumnType("jsonb");
+                    b.Property<string>("EditorJSData")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -52,10 +53,7 @@ namespace StudyAssignmentManager.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("AuthorId")
-                        .HasColumnType("uuid");
-
-                    b.Property<EditorJSData>("Data")
+                    b.Property<string>("Data")
                         .HasColumnType("jsonb");
 
                     b.Property<string>("Description")
@@ -65,8 +63,6 @@ namespace StudyAssignmentManager.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AuthorId");
 
                     b.ToTable("AssignmentDatas");
                 });
@@ -119,8 +115,7 @@ namespace StudyAssignmentManager.Infrastructure.Migrations
                     b.Property<Guid>("DataId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("DueDate")
-                        .IsRequired()
+                    b.Property<DateTime>("DueDate")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsCompleted")
@@ -209,17 +204,6 @@ namespace StudyAssignmentManager.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Assignment");
-                });
-
-            modelBuilder.Entity("StudyAssignmentManager.Domain.AssignmentData", b =>
-                {
-                    b.HasOne("StudyAssignmentManager.Domain.User", "Author")
-                        .WithMany("AssignmentDataList")
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Author");
                 });
 
             modelBuilder.Entity("StudyAssignmentManager.Domain.CheckRequest", b =>
@@ -318,8 +302,6 @@ namespace StudyAssignmentManager.Infrastructure.Migrations
 
             modelBuilder.Entity("StudyAssignmentManager.Domain.User", b =>
                 {
-                    b.Navigation("AssignmentDataList");
-
                     b.Navigation("CheckRequests");
                 });
 #pragma warning restore 612, 618

@@ -13,5 +13,6 @@ namespace StudyAssignmentManager.Domain
         public List<Guid> RoleIds { get; set; }
         public List<UserRole> Roles { get; set; }
         public List<CheckRequest> CheckRequests { get; set; }
+        public List<AssignmentData> AssignmentDataList { get; set; }
     }
 }
