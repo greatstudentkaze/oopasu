@@ -2,11 +2,8 @@ using System;
 
 namespace StudyAssignmentManager.Domain
 {
-    public class AuthenticationResponse
+    public class AuthenticationResponse : UserData
     {
-        public Guid Id { get; set; }
-        public string Email { get; set; }
-        public string FullName { get; set; }
         // public string Token { get; set; }
 
         public AuthenticationResponse(User user)
