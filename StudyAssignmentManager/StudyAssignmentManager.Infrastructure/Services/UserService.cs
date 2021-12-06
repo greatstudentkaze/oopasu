@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StudyAssignmentManager.Domain;
+using StudyAssignmentManager.Domain.Enums;
 using StudyAssignmentManager.Infrastructure.Repositories;
 
 namespace StudyAssignmentManager.API.Services
@@ -45,7 +46,7 @@ namespace StudyAssignmentManager.API.Services
                 FullName = model.FullName,
                 Email = model.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
-                RoleIds = new List<Guid> {Guid.NewGuid(), Guid.NewGuid()},
+                Role = UserRole.Teacher,
             };
             await _userRepository.AddAsync(user);
 
