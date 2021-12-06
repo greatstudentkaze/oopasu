@@ -46,11 +46,11 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
         
-        public async Task AddCommentAsync(Guid id, AddCommentDto model)
+        public async Task AddCommentAsync(Guid id, Comment comment)
         {
             var existAnswer = await _context.Answers.FindAsync(id);
             var updatedComments = existAnswer.Comments.ToList();
-            updatedComments.Add(model.Comment);
+            updatedComments.Add(comment);
             _context.Entry(existAnswer).CurrentValues.SetValues(new { Comments = updatedComments });
             await _context.SaveChangesAsync();
         }

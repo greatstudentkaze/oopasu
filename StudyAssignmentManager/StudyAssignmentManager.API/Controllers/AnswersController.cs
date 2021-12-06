@@ -71,9 +71,9 @@ namespace StudyAssignmentManager.API.Controllers
         // POST: api/Answers/:id/comments
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("{id}/comments")]
-        public async Task<ActionResult<Answer>> AddComment(Guid id, AddCommentDto model)
+        public async Task<ActionResult<Answer>> AddComment(Guid id, Comment comment)
         {
-            await _answerRepository.AddCommentAsync(id, model);
+            await _answerRepository.AddCommentAsync(id, comment);
 
             return Ok();
         }

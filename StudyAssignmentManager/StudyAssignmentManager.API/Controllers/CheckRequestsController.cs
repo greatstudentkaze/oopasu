@@ -15,12 +15,18 @@ namespace StudyAssignmentManager.API.Controllers
         private readonly ICheckRequestRepository _checkRequestRepository;
         private readonly IStudyAssignmentRepository _studyAssignmentRepository;
         private readonly IAnswerRepository _answerRepository;
+        private readonly IAttachmentRepository _attachmentRepository;
 
-        public CheckRequestsController(ICheckRequestRepository checkRequestRepository, IStudyAssignmentRepository studyAssignmentRepository, IAnswerRepository answerRepository)
+        public CheckRequestsController(
+            ICheckRequestRepository checkRequestRepository, 
+            IStudyAssignmentRepository studyAssignmentRepository, 
+            IAnswerRepository answerRepository, 
+            IAttachmentRepository attachmentRepository)
         {
             _checkRequestRepository = checkRequestRepository;
             _studyAssignmentRepository = studyAssignmentRepository;
             _answerRepository = answerRepository;
+            _attachmentRepository = attachmentRepository;
         }
         
         // GET: api/CheckRequests/:id
@@ -57,11 +63,19 @@ namespace StudyAssignmentManager.API.Controllers
             var answer = new Answer
             {
                 AssignmentId = model.AssignmentId,
-                Data = model.Answer.Data,
-                AttachmentUrls = model.Answer.AttachmentUrls,
-                Comments = new List<string>(),
+                Content = model.Answer.Data
             };
             await _answerRepository.AddAsync(answer);
+            
+            foreach (var answerAttachmentUrl in model.Answer.AttachmentUrls)
+            {
+                var attachment = new Attachment
+                {
+                    AnswerId = answer.Id,
+                    Url = answerAttachmentUrl,
+                };
+                _attachmentRepository.AddAsync(attachment);
+            }
 
             var checkRequest = new CheckRequest
             {

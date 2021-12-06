@@ -13,5 +13,7 @@ namespace StudyAssignmentManager.Infrastructure
         public DbSet<User> Users { get; set; }
         public DbSet<CheckRequest> CheckRequests { get; set; }
         public DbSet<Answer> Answers { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Attachment> Attachments { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
         Task<List<Answer>> GetByAssignmentIdAsync(Guid id);
         Task AddAsync(Answer answer);
         Task UpdateAsync(Answer answer);
-        Task AddCommentAsync(Guid id, AddCommentDto model);
+        Task AddCommentAsync(Guid id, Comment comment);
         Task DeleteAsync(Answer answer);
         bool EntryExists(Guid id);
     }
