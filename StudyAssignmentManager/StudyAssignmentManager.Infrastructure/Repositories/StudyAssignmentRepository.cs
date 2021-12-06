@@ -43,9 +43,9 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
             return await _context.StudyAssignments.Where(it => it.StudentId == id).ToListAsync();
         }
         
-        public async Task<List<StudyAssignment>> GetByDataIdAsync(Guid id)
+        public async Task<List<StudyAssignment>> GetByEduMaterialIdAsync(Guid id)
         {
-            return await _context.StudyAssignments.Where(it => it.DataId == id).ToListAsync();
+            return await _context.StudyAssignments.Where(it => it.EducationalMaterialId == id).ToListAsync();
         }
         
         public async Task AddAsync(StudyAssignment studyAssignment)

@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using StudyAssignmentManager.Domain;
 
 namespace StudyAssignmentManager.Infrastructure
@@ -10,9 +9,8 @@ namespace StudyAssignmentManager.Infrastructure
         {}
         
         public DbSet<StudyAssignment> StudyAssignments { get; set; }
-        public DbSet<AssignmentData> AssignmentDatas { get; set; }
+        public DbSet<EducationalMaterial> EducationalMaterials { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<CheckRequest> CheckRequests { get; set; }
         public DbSet<Answer> Answers { get; set; }
     }

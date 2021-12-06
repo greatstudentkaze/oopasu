@@ -10,11 +10,11 @@ namespace StudyAssignmentManager.Domain
         public DateTime CreationDate { get; set; }
         [Required(ErrorMessage = "Укажите дату истечения срока задания")]
         public DateTime? DueDate { get; set; }
-        public Boolean IsCompleted { get; set; }
+        public bool IsCompleted { get; set; }
         
         [Required]
-        public Guid DataId { get; set; }
-        public AssignmentData Data { get; set; }
+        public Guid EducationalMaterialId { get; set; }
+        public EducationalMaterial EducationalMaterial { get; set; }
         public Guid StudentId { get; set; }
         public User Student { get; set; }
         public Guid TeacherId { get; set; }

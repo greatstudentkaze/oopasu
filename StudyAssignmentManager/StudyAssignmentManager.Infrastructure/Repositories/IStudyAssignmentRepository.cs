@@ -11,7 +11,7 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
         Task<List<StudyAssignment>> GetByTutorIdAsync(Guid id);
         Task<List<StudyAssignment>> GetByTeacherIdAsync(Guid id);
         Task<List<StudyAssignment>> GetByStudentIdAsync(Guid id);
-        Task<List<StudyAssignment>> GetByDataIdAsync(Guid id);
+        Task<List<StudyAssignment>> GetByEduMaterialIdAsync(Guid id);
         Task AddAsync(StudyAssignment studyAssignment);
         Task UpdateAsync(StudyAssignment studyAssignment);
         Task DeleteAsync(Guid id);

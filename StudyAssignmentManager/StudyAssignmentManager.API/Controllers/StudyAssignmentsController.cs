@@ -21,9 +21,9 @@ namespace StudyAssignmentManager.API.Controllers
 
         // GET: api/StudyAssignments/data/:id
         [HttpGet("data/{id}")]
-        public async Task<ActionResult<IEnumerable<StudyAssignment>>> GetStudyAssignmentsByDataId(Guid id)
+        public async Task<ActionResult<IEnumerable<StudyAssignment>>> GetStudyAssignmentsByEduMaterialId(Guid id)
         {
-            return await _studyAssignmentRepository.GetByDataIdAsync(id);
+            return await _studyAssignmentRepository.GetByEduMaterialIdAsync(id);
         }
 
         // GET: api/StudyAssignments/student/:id

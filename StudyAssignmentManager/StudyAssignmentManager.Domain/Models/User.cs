@@ -13,6 +13,6 @@ namespace StudyAssignmentManager.Domain
         public UserRole Role { get; set; }
         
         public List<CheckRequest> CheckRequests { get; set; }
-        public List<AssignmentData> AssignmentDataList { get; set; }
+        public List<EducationalMaterial> EducationalMaterials { get; set; }
     }
 }

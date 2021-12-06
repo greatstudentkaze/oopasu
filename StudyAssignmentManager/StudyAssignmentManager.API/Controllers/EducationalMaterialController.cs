@@ -9,27 +9,27 @@ using StudyAssignmentManager.Infrastructure.Repositories;
 
 namespace StudyAssignmentManager.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/educational-materials")]
     [ApiController]
-    public class AssignmentDataController : ControllerBase
+    public class EducationalMaterialController : ControllerBase
     {
         private readonly Context _context;
-        private readonly AssignmentDataRepository _assignmentDataRepository;
+        private readonly EducationalMaterialRepository _assignmentDataRepository;
 
-        public AssignmentDataController(Context context)
+        public EducationalMaterialController(Context context)
         {
             _context = context;
-            _assignmentDataRepository = new AssignmentDataRepository(_context);
+            _assignmentDataRepository = new EducationalMaterialRepository(_context);
         }
 
-        // GET: api/AssignmentData/author/:id
+        // GET: api/educational-materials/author/:id
         [HttpGet("author/{id}")]
-        public async Task<ActionResult<IEnumerable<AssignmentData>>> GetAssignmentDataListByAuthorId(Guid id)
+        public async Task<ActionResult<IEnumerable<EducationalMaterial>>> GetEducationalMaterialListByAuthorId(Guid id)
         {
             return await _assignmentDataRepository.GetByAuthorIdAsync(id);
         }
 
-        // GET: api/AssignmentData/:id/assignments
+        // GET: api/educational-materials/:id/assignments
         [HttpGet("{id}/assignments")]
         public async Task<ActionResult<IEnumerable<StudyAssignment>>> GetStudyAssignmentsByDataId(Guid id)
         {
@@ -43,9 +43,9 @@ namespace StudyAssignmentManager.API.Controllers
             return assignmentData.Assignments;
         }
 
-        // GET: api/AssignmentData/:id
+        // GET: api/educational-materials/:id
         [HttpGet("{id}")]
-        public async Task<ActionResult<AssignmentData>> GetAssignmentData(Guid id)
+        public async Task<ActionResult<EducationalMaterial>> GetEducationalMaterial(Guid id)
         {
             var assignmentData = await _assignmentDataRepository.GetByIdAsync(id);
 
@@ -57,10 +57,10 @@ namespace StudyAssignmentManager.API.Controllers
             return assignmentData;
         }
 
-        // PUT: api/AssignmentData/:id
+        // PUT: api/educational-materials/:id
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAssignmentData(Guid id, AssignmentData assignmentData)
+        public async Task<IActionResult> PutEducationalMaterial(Guid id, EducationalMaterial assignmentData)
         {
             if (id != assignmentData.Id)
             {
@@ -86,18 +86,18 @@ namespace StudyAssignmentManager.API.Controllers
             return NoContent();
         }
 
-        // POST: api/AssignmentData
+        // POST: api/educational-materials
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<AssignmentData>> PostAssignmentData(AssignmentData assignmentData)
+        public async Task<ActionResult<EducationalMaterial>> PostEducationalMaterial(EducationalMaterial assignmentData)
         {
             await _assignmentDataRepository.AddAsync(assignmentData);
-            return CreatedAtAction(nameof(GetAssignmentData), new { id = assignmentData.Id }, assignmentData);
+            return CreatedAtAction(nameof(GetEducationalMaterial), new { id = assignmentData.Id }, assignmentData);
         }
 
-        // DELETE: api/AssignmentData/:id
+        // DELETE: api/educational-materials/:id
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAssignmentData(Guid id)
+        public async Task<IActionResult> DeleteEducationalMaterial(Guid id)
         {
             await _assignmentDataRepository.DeleteAsync(id);
             return NoContent();
