@@ -7,7 +7,7 @@ namespace StudyAssignmentManager.Domain
     public class StudyAssignment
     {
         public Guid Id { get; set; }
-        public DateTime CreationDate { get; set; }
+        public DateTime CreationDate { get; set; } = DateTime.Now;
         [Required(ErrorMessage = "Укажите дату истечения срока задания")]
         public DateTime? DueDate { get; set; }
         public bool IsCompleted { get; set; }

@@ -11,7 +11,7 @@ namespace StudyAssignmentManager.Domain
         public List<String> AttachmentUrls { get; set; }
         
         [Column(TypeName = "jsonb")]
-        public EditorJSData Data { get; set; }
+        public EditorJSData Content { get; set; }
         
         public Guid AssignmentId { get; set; }
         public StudyAssignment Assignment { get; set; }
