@@ -1,20 +1,14 @@
 using System;
+using StudyAssignmentManager.Domain.Enums;
 
 namespace StudyAssignmentManager.Domain
 {
-    public enum CheckRequestStatus
-    {
-        Completed,
-        Canceled,
-        InProgress,
-    }
-    
     public class CheckRequest
     {
         public Guid Id { get; set; }
         public CheckRequestStatus Status { get; set; }
         public int Number { get; set; }
-        public DateTime CreationDate { get; set; }
+        public DateTime CreationDate { get; set; } = DateTime.Now;
         
         public Guid AssignmentId { get; set; }
         public StudyAssignment Assignment { get; set; }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StudyAssignmentManager.Domain;
+using StudyAssignmentManager.Domain.Enums;
 
 namespace StudyAssignmentManager.Infrastructure.Repositories
 {

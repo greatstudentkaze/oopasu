@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using StudyAssignmentManager.Domain;
+using StudyAssignmentManager.Domain.Enums;
 using StudyAssignmentManager.Infrastructure.Repositories;
 
 namespace StudyAssignmentManager.API.Controllers

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using StudyAssignmentManager.Domain;
+using StudyAssignmentManager.Domain.Enums;
 
 namespace StudyAssignmentManager.Infrastructure.Repositories
 {
