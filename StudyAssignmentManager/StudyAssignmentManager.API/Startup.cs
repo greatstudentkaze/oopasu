@@ -32,6 +32,7 @@ namespace StudyAssignmentManager.API
             services.AddScoped<ICheckRequestRepository, CheckRequestRepository>();
             services.AddScoped<IStudyAssignmentRepository, StudyAssignmentRepository>();
             services.AddScoped<IAnswerRepository, AnswerRepository>();
+            services.AddScoped<IAttachmentRepository, AttachmentRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
