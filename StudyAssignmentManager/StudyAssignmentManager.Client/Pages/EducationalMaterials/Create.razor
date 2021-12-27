@@ -1,9 +1,10 @@
 @using StudyAssignmentManager.Domain
 @using System.Net.Http.Json
 @using StudyAssignmentManager.Client.Services
-@inject IJSRuntime JS
+
 @inject HttpClient client
 @inject NavigationManager NavigationManager
+@inject EditorJSService editorJSService
 
 @page "/educational-materials/create"
 
@@ -37,32 +38,19 @@
     string responseMessage;
     
     private ElementReference editorjsElement;
-    private IJSObjectReference? editorjsModule;
-    private IJSObjectReference? editorjsInstance;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            editorjsModule = await JS.InvokeAsync<IJSObjectReference>(
-                "import", "./js/modules/editorjs/index.js");
-            editorjsInstance = await editorjsModule.InvokeAsync<IJSObjectReference>(
-                "addEditorjs", editorjsElement);
-        }
-    }
-    
-    private async Task SaveEditorJSDataAsync()
-    {
-        if (editorjsModule is not null && editorjsInstance is not null)
-        {
-            educationalMaterial.Content = await editorjsModule.InvokeAsync<EditorJSData>("saveEditorjs", editorjsInstance).AsTask();
+            await editorJSService.Init(editorjsElement);
         }
     }
 
     private async void HandleSubmit(EditContext editContext)
     {
         educationalMaterial.AuthorId = UserService.userData.Id;
-        await SaveEditorJSDataAsync();
+        educationalMaterial.Content = await editorJSService.GetDataAsync();
 
         if (!editContext.Validate())
         {

@@ -1,8 +1,10 @@
 @using StudyAssignmentManager.Domain
 @using System.Net.Http.Json
-@inject IJSRuntime JS
+@using StudyAssignmentManager.Client.Services
+
 @inject HttpClient client
 @inject NavigationManager NavigationManager
+@inject EditorJSService editorJSService
 
 <h2>Добавить ответ и отправить заявку на проверку</h2>
 <EditForm Model="@checkRequest" OnSubmit="@HandleSubmit">
@@ -58,33 +60,19 @@
     string responseMessage;
     
     private ElementReference editorjsElement;
-    private IJSObjectReference? editorjsModule;
-    private IJSObjectReference? editorjsInstance;
     
     protected override async Task OnInitializedAsync()
     {
         checkRequest.ReviewerId = Tutor.Id;
-        
-        editorjsModule = await JS.InvokeAsync<IJSObjectReference>(
-            "import", "./js/modules/editorjs/index.js");
-        editorjsInstance = await editorjsModule.InvokeAsync<IJSObjectReference>(
-            "addEditorjs", editorjsElement);
-    }
 
-    private async Task SaveEditorJSDataAsync()
-    {
-        if (editorjsModule is not null && editorjsInstance is not null)
-        {
-            checkRequest.Answer = new CheckRequestAnswerDto();
-            checkRequest.Answer.Content = await editorjsModule.InvokeAsync<EditorJSData>("saveEditorjs", editorjsInstance).AsTask();
-        }
+        await editorJSService.Init(editorjsElement);
     }
 
     private async void HandleSubmit(EditContext editContext)
     {
-        await SaveEditorJSDataAsync();
+        checkRequest.Answer = new CheckRequestAnswerDto();
+        checkRequest.Answer.Content = await editorJSService.GetDataAsync();
         checkRequest.AssignmentId = AssignmentId;
-        Console.Write(checkRequest);
 
         if (!editContext.Validate())
         {
@@ -107,7 +95,6 @@
     private async void CreateCheckRequest()
     {
         var response = await client.PostAsJsonAsync("check-requests", checkRequest);
-        Console.Write(checkRequest);
         if (!response.IsSuccessStatusCode)
         {
             responseMessage = "Возникла ошибка. Обновите страницу и попробуйте еще раз";
