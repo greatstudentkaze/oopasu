@@ -11,6 +11,7 @@ namespace StudyAssignmentManager.Domain
             Id = user.Id;
             Email = user.Email;
             FullName = user.FullName;
+            Role = user.Role;
         }
     }
 }

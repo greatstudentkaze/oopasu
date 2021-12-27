@@ -14,6 +14,6 @@ namespace StudyAssignmentManager.Domain
     public class CheckRequestAnswerDto
     {
         public List<string> AttachmentUrls { get; set; }
-        public EditorJSData Data { get; set; }
+        public EditorJSData Content { get; set; }
     }
 }

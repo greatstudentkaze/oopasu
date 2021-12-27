@@ -24,9 +24,27 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
         
+        public async Task<List<CheckRequest>> GetAllAsync()
+        {
+            return await _context.CheckRequests.ToListAsync();
+        }
+        
         public async Task<CheckRequest> GetByIdAsync(Guid id)
         {
-            return await _context.CheckRequests.FindAsync(id);
+            return await _context.CheckRequests
+                .Where(it => it.Id == id)
+                .Include(it => it.Assignment)
+                .Include(it => it.Answer)
+                    .ThenInclude(it => it.Comments)
+                .FirstOrDefaultAsync();
+        }
+        
+        public async Task<CheckRequest> GetByIdWithAssignmentAsync(Guid id)
+        {
+            return await _context.CheckRequests
+                .Where(it => it.Id == id)
+                .Include(it => it.Assignment)
+                .FirstOrDefaultAsync();
         }
         
         public async Task<List<CheckRequest>> GetByAssignmentIdAsync(Guid assignmentId)
@@ -36,7 +54,14 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
         
         public async Task<List<CheckRequest>> GetByReviewerIdAsync(Guid reviewerId)
         {
-            return await _context.CheckRequests.Where(it => it.ReviewerId == reviewerId).ToListAsync();
+            return await _context.CheckRequests
+                .Where(it => it.ReviewerId == reviewerId)
+                .Where(it => it.Status != CheckRequestStatus.Canceled)
+                .Include(it => it.Assignment)
+                    .ThenInclude(it => it.EducationalMaterial)
+                .Include(it => it.Assignment)
+                    .ThenInclude(it => it.Student)
+                .ToListAsync();
         }
         
         public async Task AddAsync(CheckRequest checkRequest)

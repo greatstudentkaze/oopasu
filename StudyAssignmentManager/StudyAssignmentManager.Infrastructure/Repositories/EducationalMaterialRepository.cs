@@ -10,13 +10,6 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
     public class EducationalMaterialRepository
     {
         private readonly Context _context;
-        public Context UnitOfWork
-        {
-            get
-            {
-                return _context;
-            }
-        }
         
         public EducationalMaterialRepository(Context context)
         {
@@ -33,9 +26,9 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
             return await _context.EducationalMaterials.Where(it => it.AuthorId == id).ToListAsync();
         }
         
-        public async Task AddAsync(EducationalMaterial studyAssignment)
+        public async Task AddAsync(EducationalMaterial educationalMaterial)
         {
-            _context.EducationalMaterials.Add(studyAssignment);
+            _context.EducationalMaterials.Add(educationalMaterial);
             await _context.SaveChangesAsync();
         }
         
@@ -48,8 +41,8 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
         
         public async Task DeleteAsync(Guid id)
         {
-            var studyAssignment = await _context.EducationalMaterials.FindAsync(id);
-            _context.Remove(studyAssignment);
+            var educationalMaterial = await _context.EducationalMaterials.FindAsync(id);
+            _context.Remove(educationalMaterial);
             await _context.SaveChangesAsync();
         }
 

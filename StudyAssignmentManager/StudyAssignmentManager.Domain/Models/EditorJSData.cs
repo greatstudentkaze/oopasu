@@ -6,6 +6,8 @@ namespace StudyAssignmentManager.Domain
     [NotMapped]
     public class EditorJSData
     {
-        public List<EditorJSBlock> Blocks { get; set; }
+        public long Time { get; set; }
+        public EditorJSBlock[] Blocks { get; set; }
+        public string Version { get; set; }
     }
 }

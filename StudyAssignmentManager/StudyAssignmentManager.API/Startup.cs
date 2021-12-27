@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using StudyAssignmentManager.Infrastructure.Repositories;
+using Newtonsoft.Json;
 
 namespace StudyAssignmentManager.API
 {
@@ -21,7 +22,8 @@ namespace StudyAssignmentManager.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(
+                options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
             services.AddDbContext<Infrastructure.Context>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("StudyAssignmentManager")));
             services.AddSwaggerGen(c =>

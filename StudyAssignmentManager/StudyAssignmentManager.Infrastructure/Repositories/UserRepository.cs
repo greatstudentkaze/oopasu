@@ -32,7 +32,7 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
             return await _context.Users.FindAsync(id);
         }
         
-        public async Task<User> GetByEmailAsync(String email)
+        public async Task<User> GetByEmailAsync(string email)
         {
             return await _context.Users.FirstOrDefaultAsync(it => it.Email == email);
         }
@@ -40,6 +40,20 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
         public async Task AddAsync(User user)
         {
             _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+        }
+        
+        public async Task DeleteAsync(Guid id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            _context.Remove(user);
+            await _context.SaveChangesAsync();
+        }
+        
+        public async Task UpdateAsync(User user)
+        {
+            var existUser = await _context.Users.FindAsync(user.Id);
+            _context.Entry(existUser).CurrentValues.SetValues(user);
             await _context.SaveChangesAsync();
         }
     }

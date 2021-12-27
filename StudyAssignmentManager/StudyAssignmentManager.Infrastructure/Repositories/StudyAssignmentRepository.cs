@@ -25,17 +25,33 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
         
         public async Task<StudyAssignment> GetByIdAsync(Guid id)
         {
-            return await _context.StudyAssignments.FindAsync(id);
+            return await _context.StudyAssignments
+                .Where(it => it.Id == id)
+                .Include(it => it.EducationalMaterial)
+                .Include(it => it.Teacher)
+                .Include(it => it.Tutor)
+                .Include(it => it.CheckRequests)
+                    .ThenInclude(it => it.Reviewer)
+                .FirstOrDefaultAsync();
         }
         
         public async Task<List<StudyAssignment>> GetByTutorIdAsync(Guid id)
         {
-            return await _context.StudyAssignments.Where(it => it.TutorId == id).ToListAsync();
+            return await _context.StudyAssignments
+                .Where(it => it.TutorId == id)
+                .Include(it => it.Tutor)
+                .Include(it => it.Student)
+                .ToListAsync();
         }
         
         public async Task<List<StudyAssignment>> GetByTeacherIdAsync(Guid id)
         {
-            return await _context.StudyAssignments.Where(it => it.TeacherId == id).ToListAsync();
+            return await _context.StudyAssignments
+            .Where(it => it.TeacherId == id || it.TutorId == id)
+            .Include(it => it.Tutor)
+            .Include(it => it.Student)
+            .Include(it => it.EducationalMaterial)
+            .ToListAsync();
         }
         
         public async Task<List<StudyAssignment>> GetByStudentIdAsync(Guid id)

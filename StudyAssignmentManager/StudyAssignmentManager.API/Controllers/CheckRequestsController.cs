@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using StudyAssignmentManager.Domain;
 using StudyAssignmentManager.Domain.Enums;
@@ -8,7 +9,7 @@ using StudyAssignmentManager.Infrastructure.Repositories;
 
 namespace StudyAssignmentManager.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/check-requests")]
     [ApiController]
     public class CheckRequestsController : ControllerBase
     {
@@ -29,7 +30,7 @@ namespace StudyAssignmentManager.API.Controllers
             _attachmentRepository = attachmentRepository;
         }
         
-        // GET: api/CheckRequests/:id
+        // GET: api/check-requests/:id
         [HttpGet("{id}")]
         public async Task<ActionResult<CheckRequest>> GetCheckRequest(Guid id)
         {
@@ -42,39 +43,47 @@ namespace StudyAssignmentManager.API.Controllers
             return checkRequest;
         }
         
-        // GET: api/CheckRequests/assignment/:id
+        // GET: api/check-requests/assignment/:id
         [HttpGet("assignment/{id}")]
         public async Task<ActionResult<IEnumerable<CheckRequest>>> GetCheckRequestByAssignmentId(Guid id)
         {
             return await _checkRequestRepository.GetByAssignmentIdAsync(id);
         }
         
-        // GET: api/CheckRequests/reviewer/:id
-        [HttpGet("reviewer/{id}")]
-        public async Task<ActionResult<IEnumerable<CheckRequest>>> GetCheckRequestByReviewerId(Guid id)
+        // GET: api/check-requests?reviewerId=:reviewerId
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CheckRequest>>> GetCheckRequestByReviewerId(string reviewerId)
         {
-            return await _checkRequestRepository.GetByReviewerIdAsync(id);
+            if (reviewerId is not null)
+            {
+                return await _checkRequestRepository.GetByReviewerIdAsync(new Guid(reviewerId));
+            }
+            
+            return await _checkRequestRepository.GetAllAsync();
         }
         
-        // POST: api/CheckRequests
+        // POST: api/check-requests
         [HttpPost]
         public async Task<ActionResult<CheckRequest>> PostCheckRequest(CheckRequestWithAnswerDto model)
         {
             var answer = new Answer
             {
                 AssignmentId = model.AssignmentId,
-                Content = model.Answer.Data
+                Content = model.Answer.Content
             };
             await _answerRepository.AddAsync(answer);
-            
-            foreach (var answerAttachmentUrl in model.Answer.AttachmentUrls)
+
+            if (model.Answer.AttachmentUrls is not null)
             {
-                var attachment = new Attachment
+                foreach (var answerAttachmentUrl in model.Answer.AttachmentUrls)
                 {
-                    AnswerId = answer.Id,
-                    Url = answerAttachmentUrl,
-                };
-                _attachmentRepository.AddAsync(attachment);
+                    var attachment = new Attachment
+                    {
+                        AnswerId = answer.Id,
+                        Url = answerAttachmentUrl,
+                    };
+                    await _attachmentRepository.AddAsync(attachment);
+                }
             }
 
             var checkRequest = new CheckRequest
@@ -91,59 +100,20 @@ namespace StudyAssignmentManager.API.Controllers
             return CreatedAtAction(nameof(GetCheckRequest), new {id = checkRequest.Id}, checkRequest);
         }
 
-        // GET: api/CheckRequests/:id/cancel
-        [HttpGet("{id}/cancel")]
-        public async Task<IActionResult> CancelCheckRequest(Guid id)
+        // PATCH: api/check-requests/:id
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchCheckRequest(Guid id, JsonPatchDocument<CheckRequest> checkRequestUpdates)
         {
-            await _checkRequestRepository.UpdateStatusAsync(id, CheckRequestStatus.Canceled);
-
-            return Ok();
-        }
-
-        // GET: api/CheckRequests/:id/approve
-        [HttpGet("{id}/approve")]
-        public async Task<IActionResult> ApproveCheckRequest(Guid id)
-        {
-            var checkRequest = await _checkRequestRepository.GetByIdAsync(id);
-            if (checkRequest == null)
+            var checkRequest = await _checkRequestRepository.GetByIdWithAssignmentAsync(id);
+            if (checkRequest is null)
             {
                 return NotFound();
             }
             
-            var studyAssignment = await _studyAssignmentRepository.GetByIdAsync(checkRequest.AssignmentId);
-            if (studyAssignment == null)
-            {
-                return NotFound();
-            }
+            checkRequestUpdates.ApplyTo(checkRequest);
+            await _checkRequestRepository.UpdateAsync(checkRequest);
 
-            studyAssignment.IsCompleted = true;
-            await _studyAssignmentRepository.UpdateAsync(studyAssignment);
-            await _checkRequestRepository.UpdateStatusAsync(id, CheckRequestStatus.Completed);
-
-            return Ok();
-        }
-        
-        // GET: api/CheckRequests/:id/reject
-        [HttpGet("{id}/reject")]
-        public async Task<IActionResult> RejectCheckRequest(Guid id)
-        {
-            var checkRequest = await _checkRequestRepository.GetByIdAsync(id);
-            if (checkRequest == null)
-            {
-                return NotFound();
-            }
-            
-            var studyAssignment = await _studyAssignmentRepository.GetByIdAsync(checkRequest.AssignmentId);
-            if (studyAssignment == null)
-            {
-                return NotFound();
-            }
-
-            studyAssignment.IsCompleted = false;
-            await _studyAssignmentRepository.UpdateAsync(studyAssignment);
-            await _checkRequestRepository.UpdateStatusAsync(id, CheckRequestStatus.Completed);
-
-            return Ok();
+            return NoContent();
         }
     }
 }

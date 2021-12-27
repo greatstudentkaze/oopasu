@@ -14,66 +14,65 @@ namespace StudyAssignmentManager.API.Controllers
     public class EducationalMaterialController : ControllerBase
     {
         private readonly Context _context;
-        private readonly EducationalMaterialRepository _assignmentDataRepository;
+        private readonly EducationalMaterialRepository _educationalMaterialRepository;
 
         public EducationalMaterialController(Context context)
         {
             _context = context;
-            _assignmentDataRepository = new EducationalMaterialRepository(_context);
+            _educationalMaterialRepository = new EducationalMaterialRepository(_context);
         }
 
         // GET: api/educational-materials/author/:id
         [HttpGet("author/{id}")]
         public async Task<ActionResult<IEnumerable<EducationalMaterial>>> GetEducationalMaterialListByAuthorId(Guid id)
         {
-            return await _assignmentDataRepository.GetByAuthorIdAsync(id);
+            return await _educationalMaterialRepository.GetByAuthorIdAsync(id);
         }
 
         // GET: api/educational-materials/:id/assignments
         [HttpGet("{id}/assignments")]
         public async Task<ActionResult<IEnumerable<StudyAssignment>>> GetStudyAssignmentsByDataId(Guid id)
         {
-            var assignmentData = await _assignmentDataRepository.GetByIdAsync(id);
+            var educationalMaterial = await _educationalMaterialRepository.GetByIdAsync(id);
 
-            if (assignmentData == null)
+            if (educationalMaterial == null)
             {
                 return NotFound();
             }
 
-            return assignmentData.Assignments;
+            return educationalMaterial.Assignments;
         }
 
         // GET: api/educational-materials/:id
         [HttpGet("{id}")]
-        public async Task<ActionResult<EducationalMaterial>> GetEducationalMaterial(Guid id)
+        public async Task<ActionResult<EducationalMaterialDto>> GetEducationalMaterial(Guid id)
         {
-            var assignmentData = await _assignmentDataRepository.GetByIdAsync(id);
+            var educationalMaterial = await _educationalMaterialRepository.GetByIdAsync(id);
 
-            if (assignmentData == null)
+            if (educationalMaterial == null)
             {
                 return NotFound();
             }
 
-            return assignmentData;
+            return ItemToDTO(educationalMaterial);
         }
 
         // PUT: api/educational-materials/:id
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutEducationalMaterial(Guid id, EducationalMaterial assignmentData)
+        public async Task<IActionResult> PutEducationalMaterial(Guid id, EducationalMaterial educationalMaterial)
         {
-            if (id != assignmentData.Id)
+            if (id != educationalMaterial.Id)
             {
                 return BadRequest();
             }
             
             try
             {
-                await _assignmentDataRepository.UpdateAsync(assignmentData);
+                await _educationalMaterialRepository.UpdateAsync(educationalMaterial);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_assignmentDataRepository.EntryExists(id))
+                if (!_educationalMaterialRepository.EntryExists(id))
                 {
                     return NotFound();
                 }
@@ -87,20 +86,29 @@ namespace StudyAssignmentManager.API.Controllers
         }
 
         // POST: api/educational-materials
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<EducationalMaterial>> PostEducationalMaterial(EducationalMaterial assignmentData)
+        public async Task<ActionResult<EducationalMaterial>> PostEducationalMaterial(EducationalMaterial educationalMaterial)
         {
-            await _assignmentDataRepository.AddAsync(assignmentData);
-            return CreatedAtAction(nameof(GetEducationalMaterial), new { id = assignmentData.Id }, assignmentData);
+            await _educationalMaterialRepository.AddAsync(educationalMaterial);
+            return CreatedAtAction(nameof(GetEducationalMaterial), new { id = educationalMaterial.Id }, ItemToDTO(educationalMaterial));
         }
 
         // DELETE: api/educational-materials/:id
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEducationalMaterial(Guid id)
         {
-            await _assignmentDataRepository.DeleteAsync(id);
+            await _educationalMaterialRepository.DeleteAsync(id);
             return NoContent();
         }
+        
+        private static EducationalMaterialDto ItemToDTO(EducationalMaterial educationalMaterial) =>
+            new()
+            {
+                Id = educationalMaterial.Id,
+                Title = educationalMaterial.Title,
+                Description = educationalMaterial.Description, 
+                Content = educationalMaterial.Content,
+                AuthorId = educationalMaterial.AuthorId,
+            };
     }
 }

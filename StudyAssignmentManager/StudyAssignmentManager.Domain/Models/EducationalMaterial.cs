@@ -12,7 +12,7 @@ namespace StudyAssignmentManager.Domain
         public string Title { get; set; }
         [Required(ErrorMessage = "Описание обязательно для заполнения")]
         public string Description { get; set; }
-        [Required(ErrorMessage = "Текст задания обязателен для заполнения")]
+        [Required(ErrorMessage = "Содержание задания обязательно для заполнения")]
         [Column(TypeName = "jsonb")]
         public EditorJSData Content { get; set; }
         

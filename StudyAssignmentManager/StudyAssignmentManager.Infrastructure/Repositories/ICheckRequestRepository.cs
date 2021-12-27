@@ -8,7 +8,9 @@ namespace StudyAssignmentManager.Infrastructure.Repositories
 {
     public interface ICheckRequestRepository
     {
+        Task<List<CheckRequest>> GetAllAsync();
         Task<CheckRequest> GetByIdAsync(Guid id);
+        Task<CheckRequest> GetByIdWithAssignmentAsync(Guid id);
         Task<List<CheckRequest>> GetByAssignmentIdAsync(Guid id);
         Task<List<CheckRequest>> GetByReviewerIdAsync(Guid id);
         Task AddAsync(CheckRequest checkRequest);
