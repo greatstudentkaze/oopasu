@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Net.Http;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace StudyAssignmentManager.Client
 {
@@ -21,6 +18,14 @@ namespace StudyAssignmentManager.Client
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                })
+                .ConfigureServices((services) =>
+                {
+                    services.AddScoped(sp =>
+                        new HttpClient
+                        {
+                            BaseAddress = new Uri("https://localhost:5001/api/")
+                        });
                 });
     }
 }

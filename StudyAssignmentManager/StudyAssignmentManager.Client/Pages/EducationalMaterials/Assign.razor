@@ -1,0 +1,129 @@
+@using StudyAssignmentManager.Domain
+@using System.Net.Http.Json
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.Extensions.Primitives
+@using StudyAssignmentManager.Client.Services
+@inject IJSRuntime JS
+@inject HttpClient client
+@inject NavigationManager NavigationManager
+
+@page "/educational-materials/assign"
+
+<h1>Назначить учебный материал</h1>
+<p>@LastSubmitResult</p>
+<p>@responseMessage</p>
+@if (educationalMaterial is null || users is null)
+{
+    <Loader />
+}
+else
+{
+    <EditForm Model="@studyAssignment" OnSubmit="@HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        
+        <p>Название: @educationalMaterial.Title</p>
+        <p>Описание: @educationalMaterial.Description</p>
+    
+        <label>
+            Студент:
+            <InputSelect @bind-Value="studyAssignment.StudentId">
+                <option value="">Select classification ...</option>
+                @foreach (var user in users)
+                {
+                    <option value="@user.Id">@user.FullName</option>
+                }
+            </InputSelect>
+        </label>
+    
+        <label>
+            Проверяющий:
+            <InputSelect @bind-Value="studyAssignment.TutorId">
+                <option value="">Select classification ...</option>
+                @foreach (var user in users)
+                {
+                    <option value="@user.Id">@user.FullName</option>
+                }
+            </InputSelect>
+        </label>
+        
+        <label>
+            Последний срок сдачи:
+            <InputDate @bind-Value="studyAssignment.DueDate" />
+        </label>
+        <Button Type="submit" Style="Button.ButtonStyle.Success">
+            Назначить
+        </Button>
+    </EditForm>   
+}
+
+@code {
+    
+    
+    private Guid targetEducationalMaterialId;
+    private EducationalMaterial educationalMaterial;
+    private StudyAssignment studyAssignment = new();
+    private List<User> users;
+    string LastSubmitResult;
+    string responseMessage;
+    bool isFormRendered;
+    
+    private ElementReference editorjsElement;
+    private IJSObjectReference? editorjsModule;
+    private IJSObjectReference? editorjsInstance;
+
+    protected override async Task OnInitializedAsync()
+    {
+        StringValues educationalMaterialIdParam;  
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);  
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("id", out educationalMaterialIdParam))  
+        {  
+            targetEducationalMaterialId = new Guid(educationalMaterialIdParam);
+            
+            var response = await client.GetAsync($"educational-materials/{targetEducationalMaterialId}");
+            if (!response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo($"/educational-materials");
+            }
+        
+            educationalMaterial = await response.Content.ReadFromJsonAsync<EducationalMaterial>();
+            studyAssignment.EducationalMaterialId = educationalMaterial.Id;
+            studyAssignment.TeacherId = UserService.userData.Id;
+            
+            var usersResponse = await client.GetAsync("users");
+            if (!usersResponse.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo($"/educational-materials");
+            }
+        
+            users = await usersResponse.Content.ReadFromJsonAsync<List<User>>();
+            return;
+        }
+        
+        NavigationManager.NavigateTo($"/educational-materials");
+    }
+    
+    private async void HandleSubmit(EditContext editContext)
+    {
+        if (!editContext.Validate())
+        {
+            return;
+        }
+
+        AssignEducationalMaterial();
+    }
+
+    private async void AssignEducationalMaterial()
+    {
+        var response = await client.PostAsJsonAsync("StudyAssignments", studyAssignment);
+        if (!response.IsSuccessStatusCode)
+        {
+            responseMessage = "Возникла ошибка. Обновите страницу и попробуйте еще раз";
+            return;
+        }
+        
+        NavigationManager.NavigateTo($"/study-assignments");
+    }
+}

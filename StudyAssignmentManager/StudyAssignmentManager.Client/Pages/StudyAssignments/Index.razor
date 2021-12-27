@@ -1,0 +1,48 @@
+@using StudyAssignmentManager.Domain
+@using System.Net.Http.Json
+@using StudyAssignmentManager.Client.Services
+@using StudyAssignmentManager.Domain.Enums
+
+@inject HttpClient client
+
+@page "/study-assignments"
+
+<h1>Задания</h1>
+@if (UserService.userData.Role == UserRole.Teacher)
+{
+    <p>
+        Чтобы создать задание, перейдите на <a href="/educational-materials">страницу учебных материалов</a>
+        и назначьте один из них.
+    </p>
+}
+
+@if (assignments == null)
+{
+    <Loader/>
+}
+else if (!assignments.Any())
+{
+    <p>
+        Нет назначенных заданий
+    </p>
+}
+else
+{
+    <AssignmentsTable Assignments="assignments" />
+}
+
+@code {
+    private Guid userId = UserService.userData.Id;
+    private List<StudyAssignment> assignments;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await client.GetAsync($"StudyAssignments/tutor/{userId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ApplicationException(await response.Content.ReadAsStringAsync());
+        }
+        
+        assignments = await response.Content.ReadFromJsonAsync<List<StudyAssignment>>();
+    }
+}

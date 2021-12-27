@@ -1,9 +1,64 @@
+@using StudyAssignmentManager.Domain
+@using System.Net.Http.Json
+@using StudyAssignmentManager.Client.Services
+@using StudyAssignmentManager.Domain.Enums
+@inject IHttpClientFactory ClientFactory
+@inject HttpClient client
+
 @page "/"
 
-<h1>Hello, world!</h1>
+<h1>Главная</h1>
 
-Welcome to your new app.
+<h2>Заявки на проверку</h2>
+@if (checkRequests is null)
+{
+    <p>
+        <i>Загрузка...</i>
+    </p>
+}
+else
+{
+    <CheckRequestsTable CheckRequests="checkRequests" />
+}
 
-<SurveyPrompt Title="How is Blazor working for you?" />
 
-<Counter IncrementAmount="10" />
+@code {
+    private Guid userId = UserService.userData.Id;
+    private List<CheckRequest> checkRequests;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await client.GetAsync($"check-requests?reviewerId={userId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            throw new ApplicationException(content);
+        }
+        checkRequests = await response.Content.ReadFromJsonAsync<List<CheckRequest>>();
+    }
+
+    private async Task ApproveCheckRequest(Guid id)
+    {
+        var checkRequestUpdates = new object[]
+        {
+            new
+            {
+                op = "replace",
+                path = "/status",
+                value = CheckRequestStatus.Completed
+            },
+            new
+            {
+                op = "replace",
+                path = "/assignment/isCompleted",
+                value = true,
+            }
+        };
+        var response = await client.PatchAsync($"check-requests/{id}", JsonContent.Create(checkRequestUpdates));
+        if (!response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            throw new ApplicationException(content);
+        }
+    }
+}

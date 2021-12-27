@@ -1,0 +1,141 @@
+@using StudyAssignmentManager.Domain
+@using System.Net.Http.Json
+@using StudyAssignmentManager.Domain.Enums
+
+@inject IJSRuntime JS
+@inject HttpClient client
+@inject NavigationManager NavigationManager
+
+@page "/check-requests/{id}"
+
+@if (checkRequest is null)
+{
+    <Loader />
+}
+else
+{
+    <h1 class="d-flex align-items-center">
+        Проверка задания #@checkRequest.Number
+        <Status ClassName="ml-2" Value="checkRequest.Status">
+            @GetFormattedStatus(checkRequest.Status)
+        </Status>
+    </h1>
+    <a href="/study-assignments/@checkRequest.AssignmentId">Перейти к заданию</a>
+    <div class="my-3">
+        <Button 
+                Style="Button.ButtonStyle.Success" 
+                Disabled="@checkRequest.Assignment.IsCompleted" 
+                OnClick="@(() => ApproveCheckRequest(checkRequest.Id))"
+            >
+                Принять
+            </Button>
+        <Button 
+                Style="Button.ButtonStyle.Danger" 
+                ClassName="ml-2"
+                Disabled="@(checkRequest.Status == CheckRequestStatus.Completed && !checkRequest.Assignment.IsCompleted)" 
+                OnClick="@(() => RejectCheckRequest(checkRequest.Id))"
+            >
+                Отклонить
+            </Button>
+    </div>
+
+    <Answer Data="checkRequest.Answer" />
+    
+    @foreach (var comment in checkRequest.Answer.Comments)
+    {
+        <Comment Data="comment" ClassName="mt-2" />
+    }
+}
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+    
+    private CheckRequest checkRequest;
+    string responseMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // if (id is null)
+        // {
+        //     NavigationManager.NavigateTo($"/educational-materials");
+        // }
+        
+        var response = await client.GetAsync($"check-requests/{id}");
+        if (!response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo($"/");
+        }
+        
+        checkRequest = await response.Content.ReadFromJsonAsync<CheckRequest>();
+    }
+
+    private async Task ApproveCheckRequest(Guid id)
+    {
+        var checkRequestUpdates = new object[]
+        {
+            new
+            {
+                op = "replace",
+                path = "/status",
+                value = CheckRequestStatus.Completed
+            },
+            new
+            {
+                op = "replace",
+                path = "/assignment/isCompleted",
+                value = true,
+            }
+        };
+        var response = await client.PatchAsync($"check-requests/{id}", JsonContent.Create(checkRequestUpdates));
+        if (!response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            throw new ApplicationException(content);
+        }
+        
+        checkRequest.Assignment.IsCompleted = true;
+        StateHasChanged();
+    }
+
+    private async Task RejectCheckRequest(Guid id)
+    {
+        var checkRequestUpdates = new object[]
+        {
+            new
+            {
+                op = "replace",
+                path = "/status",
+                value = CheckRequestStatus.Completed
+            },
+            new
+            {
+                op = "replace",
+                path = "/assignment/isCompleted",
+                value = false,
+            }
+        };
+        var response = await client.PatchAsync($"check-requests/{id}", JsonContent.Create(checkRequestUpdates));
+        if (!response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            throw new ApplicationException(content);
+        }
+        
+        checkRequest.Assignment.IsCompleted = false;
+        StateHasChanged();
+    }
+
+    private string GetFormattedStatus(CheckRequestStatus status)
+    {
+        @switch (status)
+        {
+            case CheckRequestStatus.InProgress:
+                return "Ожидает проверки";
+            case CheckRequestStatus.Completed:
+                return "Выполнена";
+            default:
+                return "Отменена";
+        }
+    }
+}

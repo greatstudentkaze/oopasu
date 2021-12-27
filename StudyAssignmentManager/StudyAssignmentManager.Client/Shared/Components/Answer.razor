@@ -1,0 +1,20 @@
+@inject IJSRuntime JS
+
+<div id="@Data.Id" @ref="editorjsElement"></div>
+
+@code {
+    [Parameter]
+    public Domain.Answer Data { get; set; }
+    
+    private ElementReference editorjsElement;
+    private IJSObjectReference? editorjsModule;
+    private IJSObjectReference? editorjsInstance;
+
+    protected override async Task OnInitializedAsync()
+    {
+        editorjsModule = await JS.InvokeAsync<IJSObjectReference>(
+        "import", "./js/modules/editorjs/index.js");
+        editorjsInstance = await editorjsModule.InvokeAsync<IJSObjectReference>(
+        "addEditorjs", editorjsElement, Data.Content, true);
+    }
+}

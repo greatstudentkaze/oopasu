@@ -1,5 +1,13 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+:root {
+    --success: #218838;
+    --white: #ffffff;
+    --black: #000000;
+    --danger: #c82333;
+    --warning: #ffc107;
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
@@ -42,9 +50,19 @@ a, .btn-link {
     z-index: 1000;
 }
 
-    #blazor-error-ui .dismiss {
-        cursor: pointer;
-        position: absolute;
-        right: 0.75rem;
-        top: 0.5rem;
-    }
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}
+
+.card-list {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.card-list li:not(:last-child) {
+    margin-bottom: 1rem;
+}

@@ -4,4 +4,22 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="npm install" WorkingDirectory="NpmJS" />
+    <Exec Command="npm run build" WorkingDirectory="NpmJS" />
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StudyAssignmentManager.Domain\StudyAssignmentManager.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\js\modules\editorjs\index.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\js\vendors.bundle.js.LICENSE.txt" />
+    <Content Remove="wwwroot\js\vendors.bundle.js" />
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,15 @@
+{
+  "main": "./src/index.js",
+  "scripts": {
+    "build": "webpack ./src/index.js --output-path ../wwwroot/js/bundles --output-filename vendors.bundle.js"
+  },
+  "devDependencies": {
+    "webpack": "^5.64.4",
+    "webpack-cli": "^4.9.1"
+  },
+  "dependencies": {
+    "@editorjs/editorjs": "^2.22.2",
+    "@editorjs/header": "^2.6.2",
+    "@editorjs/list": "^1.6.2"
+  }
+}

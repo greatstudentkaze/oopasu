@@ -1,0 +1,107 @@
+@using StudyAssignmentManager.Domain
+@using System.Text.Json
+@using Microsoft.AspNetCore.WebUtilities
+@using StudyAssignmentManager.Client.Services
+@inject IJSRuntime JS
+@inject HttpClient client
+@inject NavigationManager NavManager
+
+@page "/educational-materials"
+
+@if (isSuccessfulCreation)
+{
+    <div class="alert alert-success" role="alert">
+        Задание успешно создано!
+        @if (createdEducationalMaterialId is not null)
+        {
+            <p>
+                Вы можете <a href="/study-assignments/assign">назначить</a> его или <a href="/study-assignments/data/@createdEducationalMaterialId">посмотреть</a>.
+            </p>
+        }
+    </div>
+}
+
+<div class="d-flex align-items-center flex-wrap">
+    <h1>Учебные материалы</h1>
+    <a class="btn btn-success ml-auto" href="/educational-materials/create">
+        Создать
+    </a>
+</div>
+<p>
+    На этой странице расположены созданные Вами учебные материалы (контент заданий).
+    Каждый из них Вы можете назначить студенту.
+</p>
+
+@if (educationalMaterials == null)
+{
+    <p>
+        <i>Загрузка...</i>
+    </p>
+}
+else
+{
+    <ul class="card-list">
+        @foreach (var educationalMaterial in educationalMaterials)
+        {
+            <li class="card">
+                <div class="card-body">
+                    <h3 class="card-title">@educationalMaterial.Title</h3>
+                    <p class="card-text">@educationalMaterial.Description</p>
+                    <Button ClassName="ml-2" Href=@($"/educational-materials/assign?id={educationalMaterial.Id}")>
+                        Назначить
+                    </Button>
+                    <Button ClassName="ml-2" Href=@($"/educational-materials/{educationalMaterial.Id}")>
+                        Посмотреть
+                    </Button>
+                    <Button ClassName="ml-2" Href=@($"/educational-materials/edit?id={educationalMaterial.Id}")>
+                        Изменить
+                    </Button>
+                    <button class="btn btn-danger ml-2" type="button" @onclick="() => DeleteEducationalMaterial(educationalMaterial.Id)">
+                        Удалить
+                    </button>
+                </div>
+            </li>
+        }
+    </ul>
+}
+
+
+@code {
+    private bool isSuccessfulCreation;
+    private Guid? createdEducationalMaterialId;
+    private Guid userId = UserService.userData.Id;
+    private List<EducationalMaterial> educationalMaterials;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = NavManager.ToAbsoluteUri(NavManager.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).ContainsKey("successful-creation"))
+        {
+            isSuccessfulCreation = true;
+        }
+        
+        var response = await client.GetAsync($"educational-materials/author/{userId}");
+        var content = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ApplicationException(content);
+        }
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
+        educationalMaterials = JsonSerializer.Deserialize<List<EducationalMaterial>>(content, options);
+    }
+
+    private async Task DeleteEducationalMaterial(Guid id)
+    {
+        var response = await client.DeleteAsync($"educational-materials/{id}");
+        var content = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ApplicationException(content);
+        }
+
+        educationalMaterials = educationalMaterials.Where(it => it.Id != id).ToList();
+    }
+}

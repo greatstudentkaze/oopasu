@@ -1,0 +1,28 @@
+@using StudyAssignmentManager.Domain.Enums
+<span class="status @GetStatusClassName(Value) @ClassName">
+    @ChildContent
+</span>
+
+@code {
+    [Parameter]
+    public Domain.Answer Data { get; set; }
+    [Parameter]
+    public string ClassName { get; set; }
+    [Parameter]
+    public CheckRequestStatus Value { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    private string GetStatusClassName(CheckRequestStatus status)
+    {
+        @switch (status)
+        {
+            case CheckRequestStatus.InProgress:
+                return "status--in-progress";
+            case CheckRequestStatus.Canceled:
+                return "status--canceled";
+            default:
+                return "";
+        }
+    }
+}

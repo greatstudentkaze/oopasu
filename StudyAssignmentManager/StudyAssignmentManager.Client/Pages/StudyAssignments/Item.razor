@@ -1,0 +1,153 @@
+@using StudyAssignmentManager.Domain
+@using System.Net.Http.Json
+@using System.Text.Json
+@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.Extensions.Primitives
+@using StudyAssignmentManager.Client.Services
+@using StudyAssignmentManager.Domain.Enums
+
+@inject IJSRuntime JS
+@inject HttpClient client
+@inject NavigationManager NavigationManager
+
+@page "/study-assignments/{id}"
+
+@if (UserService.userData.Role == UserRole.Teacher)
+{
+    <Button Href=@($"/educational-materials/assign?id={id}")>
+        Назначить
+    </Button>
+    <Button ClassName="ml-2" Href=@($"/educational-materials/edit?id={id}")>
+        Изменить
+    </Button>
+    <Button ClassName="ml-2" Style="@Button.ButtonStyle.Danger" OnClick="@(() => DeleteEducationalMaterial(new Guid(id)))">
+        Удалить
+    </Button>
+}
+@if (studyAssignment is null)
+{
+    <Loader />
+}
+else
+{
+    <h1>@studyAssignment.EducationalMaterial.Title</h1>
+    <p>@studyAssignment.EducationalMaterial.Description</p>
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">Работа над заданием</h2>
+            @if (studyAssignment.IsCompleted)
+            {
+                <div class="assignment-status">
+                    <div class="assignment-status__icon assignment-status__icon--completed">
+                        <span class="oi oi-check" aria-hidden="true"></span>
+                    </div>
+                    Выполнено
+                </div>
+            }
+            else
+            {
+                <div class="assignment-status">
+                    <div class="assignment-status__icon"></div>
+                    Не выполнено
+                </div>
+            }
+            @if (studyAssignment.CheckRequests.Any())
+            {
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Проверяющий</th>
+                        <th scope="col">Статус</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var checkRequest in studyAssignment.CheckRequests)
+                    {
+
+                        <tr>
+                            <th scope="row">@checkRequest.Number</th>
+                            <td>@checkRequest.Reviewer</td>
+                            <td>@checkRequest.Status</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>Нет созданных заявок на проверку</p>
+            }
+        </div>
+
+    </div>
+    <div id="assignment-content-editorjs" @ref="editorjsElement"></div>
+    
+    @if (UserService.userData.Role == UserRole.Student)
+    {
+        <CheckRequestForm 
+            Teacher="studyAssignment.Teacher" 
+            Tutor="studyAssignment.Tutor" 
+            AssignmentId="studyAssignment.Id" 
+        />
+    }
+    <CheckRequestForm 
+                Teacher="studyAssignment.Teacher" 
+                Tutor="studyAssignment.Tutor" 
+                AssignmentId="studyAssignment.Id" 
+            />
+}
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+    private StudyAssignment studyAssignment;
+    // private EducationalMaterial educationalMaterial;
+    string LastSubmitResult;
+    string responseMessage;
+    bool isFormRendered;
+    
+    private ElementReference editorjsElement;
+    private IJSObjectReference? editorjsModule;
+    private IJSObjectReference? editorjsInstance;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // if (id is null)
+        // {
+        //     NavigationManager.NavigateTo($"/educational-materials");
+        // }
+        
+        var response = await client.GetAsync($"StudyAssignments/{id}");
+        if (!response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo($"/study-assignments");
+        }
+        
+        studyAssignment = await response.Content.ReadFromJsonAsync<StudyAssignment>();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!isFormRendered && studyAssignment is not null)
+        {
+            editorjsModule = await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./js/modules/editorjs/index.js");
+            editorjsInstance = await editorjsModule.InvokeAsync<IJSObjectReference>(
+                "addEditorjs", editorjsElement, studyAssignment.EducationalMaterial.Content, true);
+            isFormRendered = true;
+        }
+    }
+    
+    private async Task DeleteEducationalMaterial(Guid id)
+    {
+        var response = await client.DeleteAsync($"educational-materials/{id}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            throw new ApplicationException(content);
+        }
+
+        NavigationManager.NavigateTo($"/educational-materials");
+    }
+}

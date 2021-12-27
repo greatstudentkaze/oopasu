@@ -1,0 +1,13 @@
+<div class="card @ClassName">
+    <div class="card-body">
+        <p class="card-title">@Data.Author.FullName</p>
+        <p class="card-text">@Data.Text</p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Domain.Comment Data { get; set; }
+    [Parameter]
+    public string ClassName { get; set; }
+}

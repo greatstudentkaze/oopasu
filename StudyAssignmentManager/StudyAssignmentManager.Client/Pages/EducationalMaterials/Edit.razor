@@ -1,0 +1,119 @@
+@using StudyAssignmentManager.Domain
+@using System.Net.Http.Json
+@using System.Text.Json
+@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.Extensions.Primitives
+@using StudyAssignmentManager.Client.Services
+@inject IJSRuntime JS
+@inject HttpClient client
+@inject NavigationManager NavigationManager
+
+@page "/educational-materials/edit"
+
+<h1>Изменение учебного материала</h1>
+<p>@LastSubmitResult</p>
+<p>@responseMessage</p>
+@if (educationalMaterial is null)
+{
+    <Loader />
+}
+else
+{
+    <EditForm Model="@educationalMaterial" OnSubmit="@HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+    
+        <div class="form-group">
+            <label for="title">Название</label>
+            <InputText @bind-Value="educationalMaterial.Title" class="form-control" id="title"/>
+        </div>
+    
+        <div class="form-group">
+            <label for="description">Описание</label>
+            <InputText @bind-Value="educationalMaterial.Description" class="form-control" id="description"/>
+        </div>
+    
+        <div class="form-group">
+            <label for="assignment-data-editorjs">Содержимое</label>
+            <div class="form-control @(educationalMaterial.Content is null ? "invalid" : "")" style="height: auto;" id="assignment-data-editorjs" @ref="editorjsElement"></div>
+        </div>
+        <button class="btn btn-success" type="submit">Обновить</button>
+    </EditForm>   
+}
+
+@code {
+    private Guid targetEducationalMaterialId;
+    private EducationalMaterial educationalMaterial;
+    string LastSubmitResult;
+    string responseMessage;
+    bool isFormRendered;
+    
+    private ElementReference editorjsElement;
+    private IJSObjectReference? editorjsModule;
+    private IJSObjectReference? editorjsInstance;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        StringValues educationalMaterialIdParam;  
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);  
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("id", out educationalMaterialIdParam))  
+        {  
+            targetEducationalMaterialId = new Guid(educationalMaterialIdParam);
+            
+            var response = await client.GetAsync($"educational-materials/{targetEducationalMaterialId}");
+            if (!response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo($"/educational-materials");
+            }
+        
+            educationalMaterial = await response.Content.ReadFromJsonAsync<EducationalMaterial>();
+            return;
+        }
+        
+        NavigationManager.NavigateTo($"/educational-materials");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!isFormRendered && educationalMaterial is not null)
+        {
+            editorjsModule = await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./js/modules/editorjs/index.js");
+            editorjsInstance = await editorjsModule.InvokeAsync<IJSObjectReference>(
+                "addEditorjs", editorjsElement, educationalMaterial.Content);
+            isFormRendered = true;
+        }
+    }
+    
+    private async Task SaveEditorJSDataAsync()
+    {
+        if (editorjsModule is not null && editorjsInstance is not null)
+        {
+            educationalMaterial.Content = await editorjsModule.InvokeAsync<EditorJSData>("saveEditorjs", editorjsInstance).AsTask();
+        }
+    }
+
+    private async void HandleSubmit(EditContext editContext)
+    {
+        await SaveEditorJSDataAsync();
+
+        if (!editContext.Validate())
+        {
+            return;
+        }
+
+        UpdateEducationalMaterial();
+    }
+
+    private async void UpdateEducationalMaterial()
+    {
+        var response = await client.PutAsJsonAsync($"educational-materials/{targetEducationalMaterialId}", educationalMaterial);
+        if (!response.IsSuccessStatusCode)
+        {
+            responseMessage = "Возникла ошибка. Обновите страницу и попробуйте еще раз";
+            return;
+        }
+        
+        NavigationManager.NavigateTo($"/educational-materials");
+    }
+}

@@ -1,0 +1,69 @@
+@using StudyAssignmentManager.Domain
+@using System.Text.Json
+@using System.Globalization
+@using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.Extensions.Primitives
+@using StudyAssignmentManager.Client.Services
+@inject IHttpClientFactory ClientFactory
+@inject HttpClient client
+@inject NavigationManager NavigationManager
+
+@layout AuthLayout
+@page "/login"
+
+@if (UserService.userData is null)
+{
+    if (isLoading)
+    {
+        <Loader />
+    }
+    else
+    {
+        <h1>Вход</h1>
+        <Button OnClick="@LoginAsTeacher">
+            Войти как учитель
+        </Button>
+        <Button OnClick="@LoginAsStudent">
+            Войти как студент
+        </Button>
+        <Button OnClick="@LoginAsTeacher">
+            Войти как тутор
+        </Button>
+    }
+}
+else
+{
+    NavigationManager.NavigateTo(returnUrl);
+}
+
+
+@code {
+    private string returnUrl = "/";
+    private bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        StringValues returnUrlParam;  
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);  
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out returnUrlParam))  
+        {  
+            returnUrl = Convert.ToString(returnUrlParam);  
+        } 
+    }
+
+    private async void LoginAsTeacher()
+    {
+        isLoading = true;
+        await UserService.LoginAsTeacher();
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private async void LoginAsStudent()
+    {
+        isLoading = true;
+        await UserService.LoginAsStudent();
+        isLoading = false;
+        StateHasChanged();
+    }
+}

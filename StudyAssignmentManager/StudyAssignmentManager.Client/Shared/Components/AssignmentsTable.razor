@@ -1,0 +1,46 @@
+@using StudyAssignmentManager.Domain
+@using System.Globalization
+
+<table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Проверяющий</th>
+            <th scope="col">Студент</th>
+            <th scope="col">Назначено</th>
+            <th scope="col">Дедлайн</th>
+        </tr>
+        </thead>
+        <tbody>
+            @foreach (var assignment in Assignments)
+            {
+                <tr class="@(assignment.IsCompleted ? "table-success" : "")">
+                    <th scope="row">@assignment.Id.ToString().Substring(0, 8)</th>
+                    <td>@assignment.Tutor.FullName</td>
+                    <td>@assignment.Student.FullName</td>
+                    <td>
+                        <time datetime="@assignment.CreationDate.ToString("yyyy-MM-dd")">
+                            @assignment.CreationDate.ToString("d MMMM H:mm", CultureInfo.GetCultureInfo("ru-RU"))
+                        </time>
+                    </td>
+                    <td>
+                        <time datetime="@assignment.DueDate?.ToString("yyyy-MM-dd")">
+                            @assignment.DueDate?.ToString("d MMMM H:mm", CultureInfo.GetCultureInfo("ru-RU"))
+                        </time>
+                    </td>
+                    <td>
+                        <a href="/study-assignments/@assignment.Id">
+                            Перейти <span class="oi oi-chevron-right" aria-hidden="true"></span>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+@code {
+    [Parameter]
+    public List<StudyAssignment> Assignments { get; set; }
+    [Parameter]
+    public string ClassName { get; set; }
+}

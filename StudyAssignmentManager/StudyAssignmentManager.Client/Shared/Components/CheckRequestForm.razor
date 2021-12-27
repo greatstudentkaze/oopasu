@@ -1,0 +1,119 @@
+@using StudyAssignmentManager.Domain
+@using System.Net.Http.Json
+@inject IJSRuntime JS
+@inject HttpClient client
+@inject NavigationManager NavigationManager
+
+<h2>Добавить ответ и отправить заявку на проверку</h2>
+<EditForm Model="@checkRequest" OnSubmit="@HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="answer-content-editorjs">Ответ</label>
+        <div class="form-control" style="height: auto;" id="answer-content-editorjs" @ref="editorjsElement"></div>
+    </div>
+    
+    <div class="form-group">
+        <label for="attachment-url">Ссылка на вложение</label>
+        <InputText @bind-Value="attachmentUrl" class="form-control" id="attachment-url"/>
+    </div>
+
+    <div class="form-group">
+        <label for="additional-attachment-url">Ссылка на дополнительное вложение</label>
+        <InputText @bind-Value="additionalAttachmentUrl" class="form-control" id="additional-attachment-url"/>
+    </div>
+
+    <label>
+        Проверяющий
+        <InputSelect @bind-Value="checkRequest.ReviewerId">
+            @if (Tutor.Id != Teacher.Id)
+            {
+                <option value="@Tutor.Id" selected>@Tutor.FullName</option>
+            }
+            <option value="@Teacher.Id">@Teacher.FullName</option>
+        </InputSelect>
+    </label>
+    
+    <Button Type="submit" Style="Button.ButtonStyle.Success">
+        Отправить на проверку
+    </Button>
+    @if (responseMessage is not null)
+    {
+        <p>@responseMessage</p>
+    }
+</EditForm>
+
+@code {
+    [Parameter]
+    public User Teacher { get; set; }
+    [Parameter]
+    public User Tutor { get; set; }
+    [Parameter]
+    public Guid AssignmentId { get; set; }
+    
+    private CheckRequestWithAnswerDto checkRequest = new();
+    private string attachmentUrl;
+    private string additionalAttachmentUrl;
+    string responseMessage;
+    
+    private ElementReference editorjsElement;
+    private IJSObjectReference? editorjsModule;
+    private IJSObjectReference? editorjsInstance;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        checkRequest.ReviewerId = Tutor.Id;
+        
+        editorjsModule = await JS.InvokeAsync<IJSObjectReference>(
+            "import", "./js/modules/editorjs/index.js");
+        editorjsInstance = await editorjsModule.InvokeAsync<IJSObjectReference>(
+            "addEditorjs", editorjsElement);
+    }
+
+    private async Task SaveEditorJSDataAsync()
+    {
+        if (editorjsModule is not null && editorjsInstance is not null)
+        {
+            checkRequest.Answer = new CheckRequestAnswerDto();
+            checkRequest.Answer.Content = await editorjsModule.InvokeAsync<EditorJSData>("saveEditorjs", editorjsInstance).AsTask();
+        }
+    }
+
+    private async void HandleSubmit(EditContext editContext)
+    {
+        await SaveEditorJSDataAsync();
+        checkRequest.AssignmentId = AssignmentId;
+        Console.Write(checkRequest);
+
+        if (!editContext.Validate())
+        {
+            responseMessage = "Заполните обязательные поля";
+            return;
+        }
+        
+        // if (attachmentUrl is not null)
+        // {
+        //     checkRequest.Answer.AttachmentUrls.Add(attachmentUrl);
+        // }
+        // if (additionalAttachmentUrl is not null)
+        // {
+        //     checkRequest.Answer.AttachmentUrls.Add(additionalAttachmentUrl);
+        // }
+
+        CreateCheckRequest();
+    }
+
+    private async void CreateCheckRequest()
+    {
+        var response = await client.PostAsJsonAsync("check-requests", checkRequest);
+        Console.Write(checkRequest);
+        if (!response.IsSuccessStatusCode)
+        {
+            responseMessage = "Возникла ошибка. Обновите страницу и попробуйте еще раз";
+            return;
+        }
+        
+        NavigationManager.NavigateTo($"/");
+    }
+}
